@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -54,6 +55,7 @@ import {
 
 const data = [
   {
+    id: "1", // unique identifier
     title: "Racism is the other virus sweeping America during this pandemic",
     author: "Morita, Julie",
     publisher: "Chicago Tribune",
@@ -61,6 +63,7 @@ const data = [
     status: "completed",
   },
   {
+    id: "2",
     title: "Asian Americans made to 'feel ... as if we are the virus' [Corrected 03/26/2020]",
     author: "Yin, Alice",
     publisher: "Chicago Tribune",
@@ -69,109 +72,119 @@ const data = [
   },
 ];
 
-export const columns = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-    cell: ({ row }) => (
-      <div>{row.getValue("title")}</div>
-    ),
-  },
-  {
-    accessorKey: "publisher",
-    header: "Publisher",
-    cell: ({ row }) => (
-      <div>{row.getValue("publisher")}</div>
-    ),
-  },
-  {
-    accessorKey: "author",
-    header: "Author",
-    cell: ({ row }) => (
-      <div>{row.getValue("author")}</div>
-    ),
-  },
-  {
-    accessorKey: "date",  // Accessor for the date column
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Date
-        <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("date"));
-      const formattedDate = new Intl.DateTimeFormat("en-CA").format(date);
-      return <div>{formattedDate}</div>;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div>{row.getValue("status")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            {/* <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator /> */}
-            <DropdownMenuItem>View article</DropdownMenuItem>
-            <DropdownMenuItem>Delete article</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
-
 function DataTableDemo() {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  // Modify columns to make entire row clickable
+  const columns = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div>{row.getValue("title")}</div>
+      ),
+    },
+    {
+      accessorKey: "publisher",
+      header: "Publisher",
+      cell: ({ row }) => (
+        <div>{row.getValue("publisher")}</div>
+      ),
+    },
+    {
+      accessorKey: "author",
+      header: "Author",
+      cell: ({ row }) => (
+        <div>{row.getValue("author")}</div>
+      ),
+    },
+    {
+      accessorKey: "date",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Date
+          <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("date"));
+        const formattedDate = new Intl.DateTimeFormat("en-CA").format(date);
+        return <div>{formattedDate}</div>;
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <div>{row.getValue("status")}</div>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const article = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  router.push(`/articles/single`);
+                }}
+              >
+                View article
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  // Implement delete logic
+                }}
+              >
+                Delete article
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
     data,
@@ -228,6 +241,8 @@ function DataTableDemo() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => router.push(`/articles/single`)}
+                  className="cursor-pointer hover:bg-gray-100"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -265,7 +280,7 @@ export default async function Page() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Example Article</BreadcrumbPage>
+                <BreadcrumbPage>All Article</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
