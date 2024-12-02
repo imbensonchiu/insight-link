@@ -1,3 +1,7 @@
+"use client"
+import * as React from "react"
+import { addDays, format } from "date-fns"
+import { DateRange } from "react-day-picker"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -14,8 +18,20 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
+import {ArticlesAreaChart} from "@/components/area-chart"
+import {ArticlesPieChart} from "@/components/pie-chart"
+import { TopicBarChart } from "@/components/topic-bar-chart"
+import { DatePickerWithRange } from "@/components/date-picker-range"
 
-export default async function Page() {
+
+
+
+export default function Page() {
+  const [date, setDate] = React.useState({
+    from: new Date(2024, 3, 1),
+    to: new Date(2024, 5, 30),
+  })
+
   return (
     (<SidebarProvider>
       <AppSidebar />
@@ -41,6 +57,12 @@ export default async function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <DatePickerWithRange date ={date} setDate={setDate}/>
+          <ArticlesAreaChart startDate={date.from} endDate={date.to}/>
+          <div className="grid gap-x-4 grid-flow-col justify-stretch ">
+            <ArticlesPieChart className=""/>
+            <TopicBarChart/>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>)
