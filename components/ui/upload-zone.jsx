@@ -6,19 +6,36 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Loader2, CheckCircle2, File as FileIcon, Trash2 } from "lucide-react"
 
 export default function Component() {
   const [activeTab, setActiveTab] = useState("upload")
   const [files, setFiles] = useState([])
   const [fileContent, setFileContent] = useState(null)
   const fileInputRef = useRef(null);
+  const [uploadStatus, setUploadStatus] = useState({
+    loading: false,
+    completed: false,
+    error: null,
+    fileName: null
+  })
+  const [columnMappings, setColumnMappings] = useState({})
 
   const handleDrop = (event) => {
     event.preventDefault()
     const droppedFiles = event.dataTransfer.files
     const validFiles = Array.from(droppedFiles).filter(file => file.type === "text/csv");
-    setFiles((prevFiles) => [...prevFiles, ...validFiles]);
-    readCSVFile(validFiles[0]);  // Read the first dropped file
+    
+    if (validFiles.length > 0) {
+      setUploadStatus({ 
+        loading: true, 
+        completed: false, 
+        error: null,
+        fileName: validFiles[0].name 
+      });
+      setFiles(validFiles);
+      readCSVFile(validFiles[0]);
+    }
   }
 
   const handleClick = () => {
@@ -28,18 +45,99 @@ export default function Component() {
   const handleFileChange = (e) => {
     const selectedFiles = e.target.files;
     const validFiles = Array.from(selectedFiles).filter(file => file.type === "text/csv");
-    setFiles((prevFiles) => [...prevFiles, ...validFiles]);
-    readCSVFile(validFiles[0]);  // Read the first selected file
+    
+    if (validFiles.length > 0) {
+      setUploadStatus({ 
+        loading: true, 
+        completed: false, 
+        error: null,
+        fileName: validFiles[0].name 
+      });
+      setFiles(validFiles);
+      readCSVFile(validFiles[0]);
+    }
   }
 
   const readCSVFile = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const content = e.target.result;
-      const rows = content.split("\n").map(row => row.split(","));
-      setFileContent(rows);  // Store the CSV content for preview
+      try {
+        const content = e.target.result;
+        const rows = content.split("\n").map(row => row.split(","));
+        
+        // Simulate a delay to show loading state
+        setTimeout(() => {
+          setFileContent(rows);
+          setUploadStatus({ 
+            loading: false, 
+            completed: true, 
+            error: null,
+            fileName: file.name 
+          });
+          setActiveTab("map");
+        }, 1000);
+      } catch (error) {
+        setUploadStatus({ 
+          loading: false, 
+          completed: false, 
+          error: error.message,
+          fileName: null 
+        });
+      }
     };
+
+    reader.onerror = (error) => {
+      setUploadStatus({ 
+        loading: false, 
+        completed: false, 
+        error: "Error reading file",
+        fileName: null 
+      });
+    };
+
     reader.readAsText(file);
+  }
+
+  const handleRemoveFile = () => {
+    setFiles([]);
+    setFileContent(null);
+    setUploadStatus({
+      loading: false,
+      completed: false,
+      error: null,
+      fileName: null
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
+
+  const handleColumnMapping = (csvColumn, mappedField) => {
+    setColumnMappings(prev => ({
+      ...prev,
+      [csvColumn]: mappedField || csvColumn 
+    }));
+  }
+
+  const handleTabNavigation = (direction) => {
+    const tabs = ["upload", "map", "preview"];
+    const currentIndex = tabs.indexOf(activeTab);
+    
+    if (direction === 'next' && currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]);
+    } else if (direction === 'previous' && currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1]);
+    }
+  }
+
+  const handleUpload = () => {
+    // Implement your upload logic here
+    console.log("Uploading file with mappings:", {
+      file: files[0],
+      columnMappings,
+      fileContent
+    });
+    alert("File uploaded successfully!");
   }
   
   return (
@@ -55,7 +153,7 @@ export default function Component() {
           <CardHeader>
             <CardTitle>Import CSV File</CardTitle>
             <CardDescription>
-              Drag and drop a CSV file to upload. We'll preview the data before you import it.
+              Select or drag and drop a CSV file to upload. We'll preview the data before you import it.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
@@ -65,8 +163,26 @@ export default function Component() {
               onDragOver={(e) => e.preventDefault()}
               onClick={handleClick}
             >
-              <div className="w-10 h-10 text-muted-foreground" />
-              <p className="text-muted-foreground">Drag and drop your CSV file here to upload</p>
+              {uploadStatus.loading ? (
+                <div className="flex flex-col items-center">
+                  <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                  <p className="text-blue-500 mt-2">Uploading CSV...</p>
+                </div>
+              ) : uploadStatus.completed ? (
+                <div className="flex flex-col items-center">
+                  <CheckCircle2 className="w-10 h-10 text-green-500" />
+                  <p className="text-green-500 mt-2">CSV Uploaded Successfully</p>
+                  {/* <div className="flex items-center mt-2">
+                    <FileIcon className="w-6 h-6 mr-2 text-gray-500" />
+                    <span className="text-gray-700">{uploadStatus.fileName}</span>
+                  </div> */}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <FileIcon className="w-10 h-10 text-muted-foreground" />
+                  <p className="text-muted-foreground mt-2">Select or drag and drop your CSV file here to upload</p>
+                </div>
+              )}
             </div>
             <input 
               type="file" 
@@ -78,8 +194,20 @@ export default function Component() {
             />
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline">Cancel</Button>
-            <Button type="submit">Next</Button>
+            <Button 
+              variant="outline" 
+              onClick={handleRemoveFile} 
+              disabled={!uploadStatus.completed}
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Remove
+            </Button>
+            <Button 
+              type="submit" 
+              onClick={() => handleTabNavigation('next')}
+              disabled={!uploadStatus.completed}
+            >
+              Next
+            </Button>
           </CardFooter>
         </Card>
       </TabsContent>
@@ -100,30 +228,46 @@ export default function Component() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {/* Add row mapping logic here */}
-                  <TableRow>
-                     <TableCell>Titile</TableCell>
-                     <TableCell>
-                       <Select id="column-mapping">
-                         <SelectTrigger>
-                           <SelectValue placeholder="Select field" />
-                         </SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="title">Title</SelectItem>
-                           <SelectItem value="publisher">Publisher</SelectItem>
-                           <SelectItem value="author">Author</SelectItem>
-                           <SelectItem value="date">Date</SelectItem>
-                         </SelectContent>
-                       </Select>
-                     </TableCell>
-                   </TableRow>
+                  {fileContent && fileContent[0].map((header, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{header}</TableCell>
+                      <TableCell>
+                        <Select 
+                          onValueChange={(value) => handleColumnMapping(header, value)}
+                          value={columnMappings[header] || ''}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select field" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="title">title</SelectItem>
+                            <SelectItem value="publisher">publisher</SelectItem>
+                            <SelectItem value="author">author</SelectItem>
+                            <SelectItem value="date">date</SelectItem>
+                            <SelectItem value="text">text</SelectItem>
+                            <SelectItem value="length">length</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline">Previous</Button>
-            <Button type="submit">Next</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => handleTabNavigation('previous')}
+            >
+              Previous
+            </Button>
+            <Button 
+              type="submit" 
+              onClick={() => handleTabNavigation('next')}
+            >
+              Next
+            </Button>
           </CardFooter>
         </Card>
       </TabsContent>
@@ -140,7 +284,9 @@ export default function Component() {
                 <TableHeader>
                   <TableRow>
                     {fileContent[0].map((header, index) => (
-                      <TableHead key={index}>{header}</TableHead>
+                      <TableHead key={index}>
+                        {columnMappings[header] || header} 
+                      </TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
@@ -159,8 +305,18 @@ export default function Component() {
             )}
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline">Previous</Button>
-            <Button type="submit">Upload</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => handleTabNavigation('previous')}
+            >
+              Previous
+            </Button>
+            <Button 
+              type="submit" 
+              onClick={handleUpload}
+            >
+              Upload
+            </Button>
           </CardFooter>
         </Card>
       </TabsContent>
