@@ -68,7 +68,7 @@ const data = [
     author: "Yin, Alice",
     publisher: "Chicago Tribune",
     date: "2020/3/26",
-    status: "completed",
+    status: "failed",
   },
 ];
 
@@ -144,9 +144,19 @@ function DataTableDemo() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <div>{row.getValue("status")}</div>
-      ),
+      cell: ({ row }) => {
+        const status = row.getValue("status");
+        return (
+          <div className="flex items-center">
+            <span 
+              className={`inline-block w-2 h-2 mr-2 rounded-full ${
+                status === "completed" ? "bg-green-500" : "bg-red-500"
+              }`}
+            />
+            {status}
+          </div>
+        );
+      },
     },
     {
       id: "actions",
@@ -265,7 +275,7 @@ function DataTableDemo() {
   );
 }
 
-export default async function Page() {
+export default function Page() {
   return (
     <SidebarProvider>
       <AppSidebar />
