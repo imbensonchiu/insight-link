@@ -35,7 +35,7 @@ const data = {
   ],
   navMain: [
     {
-      title: "Articles",
+      title: "Articles & Themes",
       url: "/articles",
       icon: Database,
       isActive: true,
@@ -45,28 +45,28 @@ const data = {
           url: "/articles",
         },
         {
-          title: "Upload Articles",
+          title: "Upload Article",
           url: "/articles/upload",
-        },
-        {
-          title: "Add Tags",
-          url: "/articles/tags",
         },
       ],
     },
     {
-      title: "Analytics",
+      title: "Data Visualization",
       url: "#",
       icon: ChartBar,
       isActive: true,
       items: [
         {
-          title: "Visualization",
+          title: "General",
           url: "/analytics/visualization",
         },
         {
-          title: "Comparison",
-          url: "/analytics/comparison",
+          title: "Themes",
+          url: "/analytics/visualization",
+        },
+        {
+          title: "People & Organizations",
+          url: "/analytics/visualization",
         },
       ],
     },
@@ -89,9 +89,6 @@ export function AppSidebar({
 }) {
   return (
     (<Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
