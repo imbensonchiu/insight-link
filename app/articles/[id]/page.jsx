@@ -25,7 +25,7 @@ async function getThemesOfArticle({article_id}){
   SELECT DISTINCT c.theme_id, t.name, t.definition, c.reason
   FROM contains c
   LEFT JOIN themes t ON c.theme_id = t.id
-  WHERE c.article_id = 1
+  WHERE c.article_id = ${article_id}
   ORDER BY c.theme_id;
   `;
   return response;
