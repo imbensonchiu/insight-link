@@ -17,6 +17,7 @@ import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -36,6 +37,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+function MediaTypeBadge({ mediaType }) {
+    if (mediaType === "mainstream"){
+        return <Badge variant="secondary" className="bg-gray-200 text-xs font-normal">Mainstream</Badge>
+    }else if (mediaType === "non-mainstream"){
+        return <Badge variant="secondary" className="text-xs font-normal">Non-mainstream</Badge>
+    }
+}
+
 export default function DataTable({ data }) {
   const router = useRouter();
   const [sorting, setSorting] = React.useState([]);
@@ -46,32 +55,10 @@ export default function DataTable({ data }) {
   // Modify columns to make entire row clickable
   const columns = [
     {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div>{row.getValue("title")}</div>
+        <div className="max-w-60">{row.getValue("title")}</div>
       ),
     },
     {
@@ -82,10 +69,17 @@ export default function DataTable({ data }) {
       ),
     },
     {
+        accessorKey: "media_type",
+        header: "Media Type",
+        cell: ({ row }) => (
+          <div><MediaTypeBadge mediaType={row.getValue("media_type")}></MediaTypeBadge></div>
+        ),
+    },
+    {
       accessorKey: "author",
       header: "Author",
       cell: ({ row }) => (
-        <div>{row.getValue("author")}</div>
+        <div className="max-w-20 truncate ">{row.getValue("author")}</div>
       ),
     },
     {
@@ -105,13 +99,7 @@ export default function DataTable({ data }) {
         return <div>{formattedDate}</div>;
       },
     },
-    {
-      accessorKey: "media_type",
-      header: "Media Type",
-      cell: ({ row }) => (
-        <div>{row.getValue("media_type")}</div>
-      ),
-    },
+
   ];
 
   const table = useReactTable({
@@ -134,15 +122,15 @@ export default function DataTable({ data }) {
   });
 
   return (
-    <div className="w-full">
-      <div className="flex items-center py-4">
+    <div className="w-full p-2">
+      <div className="flex justify-between py-4 pt-1">
         <Input
           placeholder="Search articles..."
           value={typeof table.getColumn("title")?.getFilterValue() === "string" ? table.getColumn("title")?.getFilterValue() : ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm h-8"
         />
         <div className="space-x-2">
             <Button
@@ -150,6 +138,7 @@ export default function DataTable({ data }) {
                 size="sm"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
+                className="h-8"
             >
                 Previous
             </Button>
@@ -158,6 +147,7 @@ export default function DataTable({ data }) {
                 size="sm"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
+                className="h-8"
             >
                 Next
             </Button> 
@@ -187,7 +177,7 @@ export default function DataTable({ data }) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => router.push(`/articles/single`)}
+                  onClick={() => router.push(`/articles/${row.id}`)}
                   className="cursor-pointer hover:bg-gray-100"
                 >
                   {row.getVisibleCells().map((cell) => (

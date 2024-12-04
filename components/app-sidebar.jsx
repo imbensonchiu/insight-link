@@ -42,7 +42,7 @@ const data = {
       items: [
         {
           title: "All Articles",
-          url: "/articles",
+          url: "/",
         },
         {
           title: "Upload Article",
