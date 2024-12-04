@@ -55,10 +55,17 @@ export default function DataTable({ data }) {
   // Modify columns to make entire row clickable
   const columns = [
     {
+        accessorKey: "id",
+        header: <div className="text-right">ID</div>,
+        cell: ({ row }) => (
+          <div className="text-gray-500 text-right font-mono text-xs">{row.getValue("id")}</div>
+        ),
+    },
+    {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="max-w-60">{row.getValue("title")}</div>
+        <div className="max-w-80">{row.getValue("title")}</div>
       ),
     },
     {
@@ -177,7 +184,7 @@ export default function DataTable({ data }) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => router.push(`/articles/${row.id}`)}
+                  onClick={() => router.push(`/articles/${row.getValue("id")}`)}
                   className="cursor-pointer hover:bg-gray-100"
                 >
                   {row.getVisibleCells().map((cell) => (
