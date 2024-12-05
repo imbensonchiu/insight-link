@@ -37,22 +37,23 @@ Output your results in JSON format, with each entity represented as an object co
 
 Your output should look like this:
 
-<answer>
-[
-  {{
-    "name": "Entity Name 1",
-    "role": "Entity Role 1",
-    "category": "Category from list",
-    "description": "Entity's reaction to anti-Asian racism, if applicable"
-  }},
-  {{
-    "name": "Entity Name 2",
-    "role": "Entity Role 2",
-    "category": "Category from list",
-    "description": "Entity's reaction to anti-Asian racism, if applicable"
-  }},
-  ...
-]
-</answer>
+{
+  "entities": [
+    {
+      "name": "Entity Name 1",
+      "role": "Entity Role 1",
+      "category": "Category from list",
+      "description": "Entity's reaction to anti-Asian racism, if applicable"
+    },
+    {
+      "name": "Entity Name 2",
+      "role": "Entity Role 2",
+      "category": "Category from list",
+      "description": "Entity's reaction to anti-Asian racism, if applicable"
+    },
+    ...
+  ]
+}
+
 
 Ensure that all entities mentioned in the article are included in your output, and that the information provided for each entity is accurate and based solely on the content of the given article.

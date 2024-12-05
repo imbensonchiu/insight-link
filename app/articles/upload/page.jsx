@@ -13,8 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-// import DragAndDropUpload from "@/components/ui/dropzone" // Import the drag-and-drop component
-import UploadZone from "@/components/ui/upload-zone" // Import the drag-and-drop component
+import UploadZone from "@/components/ui/pdf-upload-zone" // Import the drag-and-drop component
 
 export default async function Page() {
   return (
@@ -40,7 +39,7 @@ export default async function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           {/* <UploadZone /> */}
-          <div className="w-full max-w-3xl"> {/* or max-w-full to make it as wide as possible */}
+          <div className="w-full"> {/* or max-w-full to make it as wide as possible */}
             <UploadZone />
           </div>
         </div>
