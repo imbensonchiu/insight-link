@@ -1,7 +1,5 @@
-"use client"
 import * as React from "react"
-import { addDays, format } from "date-fns"
-import { DateRange } from "react-day-picker"
+import { neon } from '@neondatabase/serverless'
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -18,20 +16,39 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-import {ArticlesAreaChart} from "@/components/area-chart"
-import {ArticlesPieChart} from "@/components/pie-chart"
+import { NumberOfArticlesAreaChart } from "@/components/num-articles-chart"
+import { ArticlesPieChart } from "@/components/pie-chart"
 import { TopicBarChart } from "@/components/topic-bar-chart"
-import { DatePickerWithRange } from "@/components/date-picker-range"
 
 
+async function getNumArticlesAcrossTime(){
+  const sql = neon(process.env.DATABASE_URL);
+  const response = await sql`
+  WITH date_series AS (
+    SELECT generate_series(
+      (SELECT MIN(date) FROM public.articles),
+      (SELECT MAX(date) FROM public.articles),
+      '1 day'::interval
+    )::date AS date
+  )
+  SELECT 
+    to_char(date_series.date, 'YYYY-MM-DD') AS date,
+    COALESCE(SUM(CASE WHEN articles.media_type = 'mainstream' THEN 1 ELSE 0 END), 0) AS ms,
+    COALESCE(SUM(CASE WHEN articles.media_type = 'non-mainstream' THEN 1 ELSE 0 END), 0) AS nms
+  FROM 
+    date_series
+  LEFT JOIN 
+    public.articles ON date_series.date = articles.date
+  GROUP BY 
+    date_series.date
+  ORDER BY 
+    date_series.date;
+  `;
+  return response;
+}
 
-
-export default function Page() {
-  const [date, setDate] = React.useState({
-    from: new Date(2024, 3, 1),
-    to: new Date(2024, 5, 30),
-  })
-
+export default async function Page() {
+  const chartData = await getNumArticlesAcrossTime();
   return (
     (<SidebarProvider>
       <AppSidebar />
@@ -57,12 +74,7 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <DatePickerWithRange date ={date} setDate={setDate}/>
-          <ArticlesAreaChart startDate={date.from} endDate={date.to}/>
-          <div className="grid gap-x-4 grid-flow-col justify-stretch ">
-            <ArticlesPieChart className=""/>
-            <TopicBarChart/>
-          </div>
+          <NumberOfArticlesAreaChart chartData={chartData}/>
         </div>
       </SidebarInset>
     </SidebarProvider>)

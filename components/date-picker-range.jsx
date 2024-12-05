@@ -15,12 +15,12 @@ import {
 } from "@/components/ui/popover"
 
 export function DatePickerWithRange({
-  className,date, setDate
+  date, setDate
 }) {
 
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className="grid gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -33,13 +33,13 @@ export function DatePickerWithRange({
           >
             <CalendarIcon />
             {date?.from ? (
-              date.to ? (
+              date?.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {format(date?.from, "LLL dd, y")} -{" "}
+                  {format(date?.to, "LLL dd, y")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date?.from, "LLL dd, y")
               )
             ) : (
               <span>Pick a date</span>
