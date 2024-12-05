@@ -22,19 +22,31 @@ import { neon } from '@neondatabase/serverless';
 
 import DataTable from '@/components/data-table';
 
-async function getArticles() {
-  const sql = neon(process.env.DATABASE_URL);
-  const response = await sql`
-  SELECT id, title, author, publisher, date, media_type
-  FROM articles
-  ORDER BY date`;
-  // console.log(response);
-  return response;
-}
+import DataTableThemes from "@/components/data-table-theme";
 
+async function getThemes() {
+    const sql = neon(process.env.DATABASE_URL);
+    const response = await sql`
+    SELECT 
+        t.id AS theme_id, 
+        t.name AS theme_name, 
+        t.definition, 
+        COUNT(c.id) AS number_of_mentions
+    FROM 
+        public.themes t
+    LEFT JOIN 
+        public.contains c ON t.id = c.theme_id
+    GROUP BY 
+        t.id, t.name, t.definition
+    ORDER BY 
+        t.id;`;
+    // console.log(response);
+    return response;
+}
+  
 
 export default async function Page() {
-  const data = await getArticles();
+    const data = await getThemes(); 
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -45,17 +57,17 @@ export default async function Page() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Articles & Themes</BreadcrumbLink>
+                <BreadcrumbLink href="#">Articles & Themes</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>All Articles</BreadcrumbPage>
+                <BreadcrumbPage>All Themes</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </header>
         <div className="p-4">
-          <DataTable data={data}/>
+            <DataTableThemes data={data}/>
         </div>
       </SidebarInset>
     </SidebarProvider>

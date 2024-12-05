@@ -45,6 +45,10 @@ const data = {
           url: "/",
         },
         {
+          title: "All Themes",
+          url: "/themes",
+        },
+        {
           title: "Upload Article",
           url: "/articles/upload",
         },
@@ -57,27 +61,8 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "General",
+          title: "Dashboard",
           url: "/analytics/visualization",
-        },
-        {
-          title: "Themes",
-          url: "/analytics/visualization",
-        },
-        {
-          title: "People & Organizations",
-          url: "/analytics/visualization",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
         },
       ],
     },
@@ -93,7 +78,6 @@ export function AppSidebar({
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>)

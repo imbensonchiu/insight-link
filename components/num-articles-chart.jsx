@@ -2941,7 +2941,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
             <CardDescription>Showing the most mentioned themes</CardDescription>
           </CardHeader>
           <CardContent>
-            <table className="w-full divide-y divide-gray-200 transition-opacity">
+            <table className="w-full divide-y divide-gray-200 transition-all	">
               <thead className="bg-gray-50">
                 <tr>
                   <th
@@ -2962,7 +2962,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
                 {topThemes.map((theme) => (
                   <tr key={theme.theme_id}>
                     <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900 w-100 text-wrap">
-                      {theme.theme_name}
+                      <a href={`/themes/${theme.theme_id}`}>{theme.theme_name}</a>
                     </td>
                     <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-500 font-mono">
                       {theme.theme_count}

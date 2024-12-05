@@ -101,7 +101,7 @@ export default function SingleArticleDetail({article, themes, quotes, entities})
         <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="/">Articles</BreadcrumbLink>
+          <BreadcrumbLink href="/">All Articles</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator className="hidden md:block" />
           <BreadcrumbItem >
@@ -114,14 +114,6 @@ export default function SingleArticleDetail({article, themes, quotes, entities})
         <div className="grid grid-cols-12 gap-12">
         {/* Left Column - Article Content */}
         <ScrollArea className="col-span-7 h-[calc(100vh-4rem)] pr-8">
-          <Button 
-          variant="outline" 
-          className="mb-4" 
-          onClick={() => router.push(`/`)}
-          >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Articles
-          </Button>
-          
           <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
           <div className="text-sm text-gray-600 mb-4">
           <span>By {article.author}</span>
