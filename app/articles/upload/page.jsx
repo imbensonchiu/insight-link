@@ -13,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import UploadZone from "@/components/ui/pdf-upload-zone" // Import the drag-and-drop component
+import UploadZone from "@/components/pdf-upload-zone" // Import the drag-and-drop component
 
 export default async function Page() {
   return (
