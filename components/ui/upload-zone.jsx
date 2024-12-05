@@ -153,7 +153,7 @@ export default function Component() {
           <CardHeader>
             <CardTitle>Import CSV File</CardTitle>
             <CardDescription>
-              Select or drag and drop a CSV file to upload. We'll preview the data before you import it.
+              Select or drag and drop a CSV file to upload. We will preview the data before you import it.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">

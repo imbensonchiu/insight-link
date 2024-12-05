@@ -1,0 +1,58 @@
+You are tasked with extracting all entities from the given article text and providing information about them in a structured format. Here is the full text of the article:
+
+<article_text>
+{ARTICLE_TEXT}
+</article_text>
+
+Your goal is to identify all entities mentioned in the article and provide the following information for each:
+1. Name: The name of the entity
+2. Role: The role of the entity in the context of the article
+3. Category: The category the entity belongs to (from a predefined list)
+4. Description: The entity's reaction toward anti-Asian racism, if applicable
+
+The categories you must choose from are:
+- Suspects and criminals
+- Victims
+- Celebrities
+- Professionals
+- Politicians
+- General public
+- Law enforcement agencies
+- Government officials
+- NGO groups
+- Other individual
+- Other organization
+
+Instructions for extracting entities:
+1. Carefully read through the article text and identify all named entities, including individuals, organizations, and groups.
+2. For each entity, determine their name, role, and appropriate category from the list provided.
+3. If the entity's reaction toward anti-Asian racism is mentioned in the article, include this information in the description.
+4. Be sure to include all relevant entities, even if they are only mentioned briefly in the article.
+
+Guidance for determining roles and descriptions:
+- The role should be a brief description of the entity's position or function in the context of the article (e.g., "victim," "police officer," "community organizer").
+- The description should focus specifically on the entity's reaction to anti-Asian racism, if mentioned. This could include actions taken, statements made, or attitudes expressed.
+
+Output your results in JSON format, with each entity represented as an object containing the four required fields: name, role, category, and description. The entire output should be enclosed in <answer> tags.
+
+Your output should look like this:
+
+<answer>
+[
+  {{
+    "name": "Entity Name 1",
+    "role": "Entity Role 1",
+    "category": "Category from list",
+    "description": "Entity's reaction to anti-Asian racism, if applicable"
+  }},
+  {{
+    "name": "Entity Name 2",
+    "role": "Entity Role 2",
+    "category": "Category from list",
+    "description": "Entity's reaction to anti-Asian racism, if applicable"
+  }},
+  ...
+]
+</answer>
+
+Ensure that all entities mentioned in the article are included in your output, and that the information provided for each entity is accurate and based solely on the content of the given article.
