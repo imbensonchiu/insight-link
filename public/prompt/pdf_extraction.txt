@@ -22,7 +22,7 @@ Please format your output as follows in JSON:
   "title": "Title of the Article",
   "author": "Author Name",
   "publisher": "New York Times",
-  "publication_date": "Publication Date in yyyy-mm-dd format",
+  "date": "Publication Date in yyyy-mm-dd format",
   "full_text": "Full text of the article, including all paragraphs and relevant content"
 }
 ```

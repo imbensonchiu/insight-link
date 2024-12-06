@@ -10,6 +10,9 @@ import pdfToText from "react-pdftotext";
 import { neon } from '@neondatabase/serverless';
 import ArticlePreview from "@/components/article-preview";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function Component() {
   const router = useRouter();
@@ -35,6 +38,7 @@ export default function Component() {
     status: "finished",
     themes: [],
     entities: [],
+    quotes: [],
   }
 
   const [curArticle, setCurArticle] = useState(baseArticle);
@@ -127,12 +131,17 @@ export default function Component() {
       FROM themes 
     `;
     const themeObj = await handleLLM(`${themes}` + infoObj.full_text, client, '/prompt/theme_extraction.txt')
+    
+    const quotes = themeObj.themes.flatMap(theme => 
+      theme.quotes.map(quote => ({ quote: quote, theme_id: theme.theme_id }))
+    );
 
     setCurArticle({
       ...curArticle,
       ...infoObj,
       ...entityObj,
       ...themeObj,
+      quotes: quotes,
     });
 
     setTimeout(() => {
@@ -260,7 +269,7 @@ export default function Component() {
       </TabsContent>
 
       <TabsContent value="preview">
-        <ArticlePreview article={{ ...curArticle, id: 1 }} themes={curArticle.themes} quotes={[]} entities={curArticle.entities} />
+        <ArticlePreview article={{ ...curArticle, id: 1 }} themes={curArticle.themes} quotes={curArticle.quotes} entities={curArticle.entities} />
       </TabsContent>
 
       <TabsContent value="confirm">
@@ -269,17 +278,57 @@ export default function Component() {
             <CardTitle>Get PDF Info</CardTitle>
             <CardDescription>Use LLM to get the info</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            {
-              curArticle && Object.keys(curArticle).map((key) => (
-                key !== "full_text" && key !== "themes" && key !== "entities" && (
-                  <div key={key} className="flex flex-col p-4 border rounded-lg bg-white">
-                    <p className="font-semibold text-lg">{key}</p>
-                    <p className="text-gray-700">{curArticle[key]}</p>
-                  </div>
-                )
-              ))
-            }
+          <CardContent className="grid gap-6 grid-cols-5">
+            <div className="space-y-4 col-span-2">
+              {
+                curArticle && Object.keys(curArticle).map((key) => (
+                  !["full_text", "themes", "entities", "media_type", "status", "summary", "quotes"].includes(key) && (
+                    <div key={key} className="flex flex-col rounded-lg bg-white">
+                      <label className="font-semibold text-md mb-1.5">{key}</label>
+                      <Input
+                        type="text"
+                        value={curArticle[key]}
+                        onChange={(e) => setCurArticle(prev => ({ ...prev, [key]: e.target.value }))}
+                        className="text-gray-700 border rounded-md p-2"
+                      />
+                    </div>
+                  )
+                ))
+              }
+
+            </div>
+            <div className="space-y-4 col-span-3">
+              <div className="flex flex-col rounded-lg bg-white">
+                <label className="font-semibold text-md mb-1.5">summary</label>
+                <Textarea
+                  value={curArticle.summary}
+                  onChange={(e) => setCurArticle(prev => ({ ...prev, summary: e.target.value }))}
+                  className="text-gray-700 border rounded-md p-2 h-52"
+                />
+              </div>
+
+              <div className="flex flex-col rounded-lg bg-white">
+                <label className="font-semibold text-md mb-1.5">media_type</label>
+                <div className="flex flex-col">
+                  <label className="flex items-center">
+                    <Checkbox
+                      checked={curArticle.media_type === "mainstream"}
+                      onCheckedChange={() => setCurArticle(prev => ({ ...prev, media_type: "mainstream" }))}
+                    />
+                    <span className="ml-2">Mainstream</span>
+                  </label>
+                  <label className="flex items-center">
+                    <Checkbox
+                      checked={curArticle.media_type === "non-mainstream"}
+                      onCheckedChange={() => setCurArticle(prev => ({ ...prev, media_type: "non-mainstream" }))}
+                    />
+                    <span className="ml-2">Non-Mainstream</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button
