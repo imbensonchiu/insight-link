@@ -183,17 +183,17 @@ export default function Component() {
               {uploadStatus.loading ? (
                 <div className="flex flex-col items-center">
                   <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-                  <p className="text-blue-500 mt-2">Uploading CSV...</p>
+                  <p className="text-blue-500 mt-2">Uploading PDF...</p>
                 </div>
               ) : uploadStatus.completed ? (
                 <div className="flex flex-col items-center">
                   <CheckCircle2 className="w-10 h-10 text-green-500" />
-                  <p className="text-green-500 mt-2">CSV Uploaded Successfully</p>
+                  <p className="text-green-500 mt-2">PDF Uploaded Successfully</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
                   <FileIcon className="w-10 h-10 text-muted-foreground" />
-                  <p className="text-muted-foreground mt-2">Select or drag and drop your CSV file here to upload</p>
+                  <p className="text-muted-foreground mt-2">Select or drag and drop your PDF file here to upload</p>
                 </div>
               )}
             </div>
