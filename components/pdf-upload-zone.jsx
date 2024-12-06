@@ -203,7 +203,7 @@ export default function Component() {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mx-auto">
       <TabsList className="border-b">
-        <TabsTrigger value="upload" disabled={false}>Upload CSV</TabsTrigger>
+        <TabsTrigger value="upload" disabled={false}>Upload PDF</TabsTrigger>
         <TabsTrigger value="preview" disabled={uploadStatus.submitting}>Preview</TabsTrigger>
         <TabsTrigger value="confirm" disabled={uploadStatus.submitting}>Confirm</TabsTrigger>
       </TabsList>
@@ -211,9 +211,9 @@ export default function Component() {
       <TabsContent value="upload">
         <Card>
           <CardHeader>
-            <CardTitle>Import CSV File</CardTitle>
+            <CardTitle>Import PDF File</CardTitle>
             <CardDescription>
-              Select or drag and drop a CSV file to upload. We will preview the data before you import it.
+              Select or drag and drop a PDF file to upload. We will preview the data before you import it.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
@@ -226,23 +226,23 @@ export default function Component() {
               {uploadStatus.loading ? (
                 <div className="flex flex-col items-center">
                   <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-                  <p className="text-blue-500 mt-2">Uploading CSV...</p>
+                  <p className="text-blue-500 mt-2">Uploading PDF...</p>
                 </div>
               ) : uploadStatus.completed ? (
                 <div className="flex flex-col items-center">
                   <CheckCircle2 className="w-10 h-10 text-green-500" />
-                  <p className="text-green-500 mt-2">CSV Uploaded Successfully</p>
+                  <p className="text-green-500 mt-2">PDF Uploaded Successfully</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
                   <FileIcon className="w-10 h-10 text-muted-foreground" />
-                  <p className="text-muted-foreground mt-2">Select or drag and drop your CSV file here to upload</p>
+                  <p className="text-muted-foreground mt-2">Select or drag and drop your PDF file here to upload</p>
                 </div>
               )}
             </div>
             <input
               type="file"
-              accept=".csv"
+              accept=".pdf"
               multiple
               className="sr-only"
               ref={fileInputRef}
