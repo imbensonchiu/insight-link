@@ -15,32 +15,28 @@ Important Guidelines:
 
 Output Format:
 
-Please format your output as follows:
+Please format your output as follows in JSON:
 
 ```
-[Title of the Article]
-
-[Author Name]
-
-New York Times
-
-[Publication Date in yyyy-mm-dd format]
-
-[Full text of the article, including all paragraphs and relevant content]
+{
+  "title": "Title of the Article",
+  "author": "Author Name",
+  "publisher": "New York Times",
+  "publication_date": "Publication Date in yyyy-mm-dd format",
+  "full_text": "Full text of the article, including all paragraphs and relevant content"
+}
 ```
 
 Example Output:
 
 ```
-Anti-Asian attacks spur call for change: DFL-backed bills seek better hate-crime reporting, police training.
-
-Montemayor, Stephen
-
-New York Times
-
-2021-04-01
-
-[Here, include the entire text of the article, ensuring no content is omitted or truncated]
+{
+    "title": "Anti-Asian attacks spur call for change: DFL-backed bills seek better hate-crime reporting, police training.",
+    "author": "Montemayor, Stephen",
+    "publisher": "New York Times",
+    "publication_date": "2021-04-01",
+    "full_text": "[Here, include the entire text of the article, ensuring no content is omitted or truncated]"
+}
 ```
 
 Remember, accuracy and completeness in extracting the full text are crucial. Double-check to make sure you've captured the entire article content.
