@@ -24,6 +24,7 @@ You are a qualitative data researcher tasked with analyzing a news article using
      "summary": "Your brief summary of the article",
      "themes": [
        {{
+         "theme_id": 1,
          "name": "Concept name",
          "reason": "Brief explanation of why this concept applies",
          "quotes": [
@@ -43,5 +44,7 @@ You are a qualitative data researcher tasked with analyzing a news article using
 8. When extracting quotes, use the exact wording from the article and keep them concise. If a quote is very long, you may truncate it using ellipsis (...) at the beginning or end.
 
 9. If you're unsure about the application of a concept, it's better to omit it rather than include it with weak justification.
+
+10. make sure the id of the theme is the same as the id in the concepts file.
 
 Provide your complete JSON output within <json_output> tags.

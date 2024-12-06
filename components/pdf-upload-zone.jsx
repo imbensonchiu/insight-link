@@ -91,7 +91,7 @@ export default function Component() {
         const res = await fetch(promptFilePath)
         prompt = await res.text() + prompt;
       }
-  
+
       const completion = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -104,9 +104,9 @@ export default function Component() {
         ],
         response_format: { "type": "json_object" }
       });
-  
+
       console.log(JSON.parse(completion.choices[0].message.content));
-  
+
       return JSON.parse(completion.choices[0].message.content);
     }
 
@@ -154,7 +154,34 @@ export default function Component() {
   }
 
   async function handleUpload() {
-    console.log(curArticle);
+    const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL);
+    const article = (await sql`
+    INSERT INTO articles (title, author, publisher, date, summary, full_text, media_type, status)
+    VALUES (${curArticle.title}, ${curArticle.author}, ${curArticle.publisher}, ${curArticle.date}, ${curArticle.summary}, ${curArticle.full_text}, ${curArticle.media_type}, ${curArticle.status})
+    returning id
+    `)[0];
+
+    for (const entity of curArticle.entities) {
+      await sql`
+      INSERT INTO entities (article_id, name, role, category, description)
+      VALUES (${article.id}, ${"TEST" + entity.name}, ${entity.role}, ${entity.category}, ${entity.description})
+      `;
+    }
+
+    for (const theme of curArticle.themes) {
+      const contain = (await sql`
+      INSERT INTO contains (article_id, theme_id, reason)
+      VALUES (${article.id}, ${theme.theme_id}, ${"TEST" + theme.reason})
+      returning id
+      `)[0];
+
+      for (const quote of theme.quotes) {
+        await sql`
+        INSERT INTO quotes (contain_id, quote)
+        VALUES (${contain.id}, ${"TEST" + quote})
+        `;
+      }
+    }
   }
 
   return (
