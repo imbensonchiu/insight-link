@@ -9,8 +9,10 @@ import OpenAI from "openai"
 import pdfToText from "react-pdftotext";
 import { neon } from '@neondatabase/serverless';
 import ArticlePreview from "@/components/article-preview";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("upload")
   const [files, setFiles] = useState([])
   const fileInputRef = useRef(null);
@@ -18,7 +20,8 @@ export default function Component() {
     loading: false,
     completed: false,
     error: null,
-    fileName: null
+    fileName: null,
+    submitting: false,
   })
 
   const baseArticle = {
@@ -154,6 +157,7 @@ export default function Component() {
   }
 
   async function handleUpload() {
+    setUploadStatus((prev) => ({ ...prev, submitting: true }));
     const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL);
     const article = (await sql`
     INSERT INTO articles (title, author, publisher, date, summary, full_text, media_type, status)
@@ -164,32 +168,35 @@ export default function Component() {
     for (const entity of curArticle.entities) {
       await sql`
       INSERT INTO entities (article_id, name, role, category, description)
-      VALUES (${article.id}, ${"TEST" + entity.name}, ${entity.role}, ${entity.category}, ${entity.description})
+      VALUES (${article.id}, ${entity.name}, ${entity.role}, ${entity.category}, ${entity.description})
       `;
     }
 
     for (const theme of curArticle.themes) {
       const contain = (await sql`
       INSERT INTO contains (article_id, theme_id, reason)
-      VALUES (${article.id}, ${theme.theme_id}, ${"TEST" + theme.reason})
+      VALUES (${article.id}, ${theme.theme_id}, ${theme.reason})
       returning id
       `)[0];
 
       for (const quote of theme.quotes) {
         await sql`
         INSERT INTO quotes (contain_id, quote)
-        VALUES (${contain.id}, ${"TEST" + quote})
+        VALUES (${contain.id}, ${quote})
         `;
       }
     }
+
+    setUploadStatus((prev) => ({ ...prev, submitting: false }));
+    router.push(`/articles/${article.id}`);
   }
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mx-auto">
       <TabsList className="border-b">
-        <TabsTrigger value="upload">Upload CSV</TabsTrigger>
-        <TabsTrigger value="preview">Preview</TabsTrigger>
-        <TabsTrigger value="confirm">Confirm</TabsTrigger>
+        <TabsTrigger value="upload" disabled={false}>Upload CSV</TabsTrigger>
+        <TabsTrigger value="preview" disabled={uploadStatus.submitting}>Preview</TabsTrigger>
+        <TabsTrigger value="confirm" disabled={uploadStatus.submitting}>Confirm</TabsTrigger>
       </TabsList>
 
       <TabsContent value="upload">
@@ -284,8 +291,13 @@ export default function Component() {
             <Button
               type="submit"
               onClick={handleUpload}
+              disabled={uploadStatus.submitting || !uploadStatus.completed}
             >
-              Upload
+              {uploadStatus.submitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                "Upload"
+              )}
             </Button>
           </CardFooter>
         </Card>
