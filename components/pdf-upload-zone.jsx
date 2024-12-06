@@ -204,8 +204,8 @@ export default function Component() {
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mx-auto">
       <TabsList className="border-b">
         <TabsTrigger value="upload" disabled={false}>Upload PDF</TabsTrigger>
-        <TabsTrigger value="preview" disabled={uploadStatus.submitting}>Preview</TabsTrigger>
-        <TabsTrigger value="confirm" disabled={uploadStatus.submitting}>Confirm</TabsTrigger>
+        <TabsTrigger value="preview" disabled={!uploadStatus.submitting}>Preview</TabsTrigger>
+        <TabsTrigger value="confirm" disabled={!uploadStatus.submitting}>Confirm</TabsTrigger>
       </TabsList>
 
       <TabsContent value="upload">
