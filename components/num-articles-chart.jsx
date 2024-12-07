@@ -58,19 +58,40 @@ const chartConfigEntityType = {
   },
 }
 
+const chartConfigSources = {
+  total: {
+    label: "Number of Articles",
+    color: "hsl(var(--chart-5))",
+  },
+  num_sources: {
+    label: "Number of Source Types",
+  },
+  ms: {
+    label: "Number of Articles in Mainstream Media",
+    color: "hsl(var(--chart-1))",
+  },
+  nms: {
+    label: "Number of Articles in Non-mainstream Media",
+    color: "hsl(var(--chart-2))",
+  },
+}
+
 export function NumberOfArticlesAreaChart({chartData}) {
   const [date, setDate] = React.useState({
-    from: new Date(2021, 1, 1),
-    to: new Date(2021, 12, 31),
+    from: new Date(2021, 2, 16),
+    to: new Date(2021, 11, 31),
   })
 
   const [topThemes, setTopThemes] = React.useState([])
   const [topEntities, setTopEntities] = React.useState([])
   const [topEntityType, setTopEntityType] = React.useState([])
+  const [numSourcesCount, setNumSourcesCount] = React.useState([])
 
   const [topThemeMediaType, setTopThemeMediaType] = React.useState("total")
   const [topEntityMediaType, setTopEntityMediaType] = React.useState("total")
   const [topEntityTypeMediaType, setTopEntityTypeMediaType] = React.useState("total")
+
+  const [activeChart, setActiveChart] = React.useState("total")
   
 
   const filteredData = chartData.filter((item) => {
@@ -127,7 +148,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
           LIMIT 10
           `;
         }
-        console.log(response)
+        // console.log(response)
         setTopThemes(response);
       }
     }
@@ -171,7 +192,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
           LIMIT 10
           `;
         }
-        console.log(response)
+        // console.log(response)
         setTopEntities(response);
     }
     async function getTopEntitiesType(){
@@ -214,13 +235,39 @@ export function NumberOfArticlesAreaChart({chartData}) {
         LIMIT 10
         `;
       }
-      console.log(response)
+      // console.log(response)
       setTopEntityType(response);
     }
+    async function getNumSourcesCount(){
+      const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL);
+      let response = await sql`
+      SELECT  
+        num_sources, 
+        CAST(COUNT(*) AS INT) AS total,
+        CAST(SUM(CASE WHEN a.media_type = 'mainstream' THEN 1 ELSE 0 END) AS INT) AS ms,
+        CAST(SUM(CASE WHEN a.media_type != 'mainstream' THEN 1 ELSE 0 END) AS INT) AS nms
+      FROM (
+        SELECT 
+          e.article_id, 
+          COUNT(DISTINCT e.category) AS num_sources
+        FROM entities e
+        JOIN articles a ON e.article_id = a.id
+        WHERE a.date BETWEEN ${date?.from} AND ${date?.to}
+        GROUP BY e.article_id
+      ) AS source_counts
+      JOIN articles a ON source_counts.article_id = a.id
+      GROUP BY num_sources
+      ORDER BY num_sources;
+      `;
+
+      setNumSourcesCount(response);
+    }
+
     getTopThemes();
     getTopEntities();
     getTopEntitiesType();
-  }, [date, topThemeMediaType, topEntityMediaType, topEntityTypeMediaType]);
+    getNumSourcesCount();
+  }, [date, topThemeMediaType, topEntityMediaType, topEntityTypeMediaType, numSourcesCount ]);
   
 
   // console.log(filteredData)
@@ -322,7 +369,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
           </ChartContainer>
         </CardContent>
       </Card>
-      {/*Top entity types*/}
+      {/*Top entity types and Sources count*/}
       <div className="grid grid-cols-2 gap-4">
         <Card className="col-span-1">
           <CardHeader className="flex flex-col">
@@ -392,6 +439,66 @@ export function NumberOfArticlesAreaChart({chartData}) {
                 </Bar>
               </BarChart>
             </ChartContainer>
+          </CardContent>
+        </Card>
+        <Card className="col-span-1">
+          <CardHeader className="flex flex-col">
+            <div className="flex flex-row justify-between items-center">
+            <CardTitle>The Number of Sources Types </CardTitle>
+            <Select value={activeChart} onValueChange={setActiveChart}>
+            <SelectTrigger
+              className="w-[200px] rounded-lg sm:ml-auto"
+              aria-label="Select a value"
+            >
+              <SelectValue placeholder="Last 3 months" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="total" className="rounded-lg">
+                Total
+              </SelectItem>
+              <SelectItem value="ms" className="rounded-lg">
+                Mainstream Media
+              </SelectItem>
+              <SelectItem value="nms" className="rounded-lg">
+                Non-mainstream Media
+              </SelectItem>
+            </SelectContent>
+            </Select>
+            </div>
+            <CardDescription>Examine how many articles used one source, two sources, three sources, and so on... </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfigSources}>
+            <BarChart
+              accessibilityLayer
+              data={numSourcesCount}
+              margin={{
+                top: 20,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="num_sources"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                className="font-mono"
+                tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} radius={8}>
+                <LabelList
+                  position="top"
+                  offset={12}
+                  className="fill-foreground font-mono"
+                  fontSize={12}
+                />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
           </CardContent>
         </Card>
       </div>

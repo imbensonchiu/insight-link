@@ -117,7 +117,7 @@ export default function DataTable({ data }) {
         accessorKey: "media_type",
         header: "Media Type",
         cell: ({ row }) => (
-          <div><MediaTypeBadge mediaType={row.getValue("media_type")}></MediaTypeBadge></div>
+          <div className="min-w-40"><MediaTypeBadge mediaType={row.getValue("media_type")}></MediaTypeBadge></div>
         ),
     },
     {
