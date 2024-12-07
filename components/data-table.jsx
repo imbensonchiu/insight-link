@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"; 
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,7 +45,7 @@ function MediaTypeBadge({ mediaType }) {
     }
 }
 
-export default function DataTable({ data }) {
+export default function DataTable({ data, onDelete }) {
   const router = useRouter();
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -106,9 +106,21 @@ export default function DataTable({ data }) {
         return <div>{formattedDate}</div>;
       },
     },
-
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-xs px-1 py-0.5 text-gray-500"
+          onClick={() => onDelete(row.getValue("id"))}
+        >
+          <Trash size={16} className=""/>
+        </Button>
+      ),
+    },
   ];
-
   const table = useReactTable({
     data,
     columns,
