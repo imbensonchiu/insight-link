@@ -133,7 +133,7 @@ export default function Component() {
       FROM themes 
     `;
     const themeObj = await handleLLM(`<news_article>\n${infoObj.full_text}</news_article>` + `<themes>\n${JSON.stringify(themes, null, 2)}\n</themes>`, client, '/prompt/theme_extraction.txt')
-    const newThemes = themeObj.themes.filter(theme => themes.some(t => t.theme_id === theme.id && t.name === theme.name));
+    themeObj.themes = themeObj.themes.filter(theme => themes.some(t => t.theme_id === theme.id && t.name === theme.name));
     
     const quotes = themeObj.themes.flatMap(theme => 
       theme.quotes.map(quote => ({ quote: quote, theme_id: theme.theme_id }))
@@ -143,7 +143,7 @@ export default function Component() {
       ...curArticle,
       ...infoObj,
       ...entityObj,
-      themes: newThemes,
+      ...themeObj,
       quotes: quotes,
     });
 
