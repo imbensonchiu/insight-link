@@ -37,6 +37,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog"
+import { set } from "date-fns";
+import { neon } from '@neondatabase/serverless';
+
+
 function MediaTypeBadge({ mediaType }) {
     if (mediaType === "mainstream"){
         return <Badge variant="secondary" className="bg-gray-200 text-xs font-normal">Mainstream</Badge>
@@ -45,13 +58,38 @@ function MediaTypeBadge({ mediaType }) {
     }
 }
 
-export default function DataTable({ data, onDelete }) {
+export default function DataTable({ data }) {
   const router = useRouter();
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [deleteID, setDeleteID] = React.useState(null);
 
+  const onDelete = (id) => {
+    // Implement the delete functionality here
+    console.log(`Deleting article with id: ${id}`);
+    // You can add your API call or state update logic here
+    setDeleteID(id);
+  };
+
+  React.useEffect(() => {
+    if (deleteID !== null) {
+      console.log("Delete ID: ", deleteID);
+      const deleteArticle = async (id) => {
+        try {
+          const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL);
+          const response = await sql`
+              DELETE FROM public.articles WHERE id = ${id}
+            `;
+            console.log("DELETE Response:", response)
+        } catch (error) {
+          console.log("Delete article error: ", error);
+        }
+      };
+      deleteArticle(deleteID);
+    }
+  }, [deleteID]);
   // Modify columns to make entire row clickable
   const columns = [
     {
@@ -65,7 +103,7 @@ export default function DataTable({ data, onDelete }) {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
-        <div className="max-w-80">{row.getValue("title")}</div>
+        <a className="max-w-80" href={`/articles/${row.getValue("id")}`}>{row.getValue("title")}</a>
       ),
     },
     {
@@ -108,16 +146,34 @@ export default function DataTable({ data, onDelete }) {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: "Delete",
       cell: ({ row }) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs px-1 py-0.5 text-gray-500"
-          onClick={() => onDelete(row.getValue("id"))}
-        >
-          <Trash size={16} className=""/>
-        </Button>
+        <Dialog>
+          <DialogTrigger>
+              <Trash size={16} className="text-gray-500 hover:text-gray-800"/>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you absolutely sure?</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. This will permanently delete the article.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+            <Button
+              type="submit"
+              variant="destructive"
+              className="text-bold text-white"
+              onClick={() => {
+                onDelete(row.original.id);
+                router.refresh();
+              }}
+            >
+              Yes. I want to delete this article.
+            </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ),
     },
   ];
@@ -196,7 +252,6 @@ export default function DataTable({ data, onDelete }) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => router.push(`/articles/${row.getValue("id")}`)}
                   className="cursor-pointer hover:bg-gray-100"
                 >
                   {row.getVisibleCells().map((cell) => (
