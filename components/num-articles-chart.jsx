@@ -4,6 +4,8 @@ import * as React from "react"
 import { Bar, BarChart, Area, AreaChart, CartesianGrid, XAxis, YAxis, LabelList, CardFooter} from "recharts"
 import { DatePickerWithRange } from "./date-picker-range"
 import { neon } from '@neondatabase/serverless'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 
 import {
@@ -21,15 +23,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { date } from "drizzle-orm/mysql-core"
-import { set } from "date-fns"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 const chartConfig = {
   articles: {
@@ -75,6 +68,13 @@ const chartConfigSources = {
     color: "hsl(var(--chart-2))",
   },
 }
+
+const color = {
+  total: "chart-4",
+  ms: "chart-1",
+  nms: "chart-2",
+}
+
 
 export function NumberOfArticlesAreaChart({chartData}) {
   const [date, setDate] = React.useState({
@@ -274,7 +274,22 @@ export function NumberOfArticlesAreaChart({chartData}) {
 
   return (
     <>
-      <DatePickerWithRange date={date} setDate={setDate} />
+    <div className="flex flex-row gap-2">
+    <DatePickerWithRange date={date} setDate={setDate} />
+    <Tabs defaultValue="total" className="w-[400px]" onValueChange={(v) => {
+      setTopThemeMediaType(v)
+      setTopEntityMediaType(v)
+      setTopEntityTypeMediaType(v)
+      setActiveChart(v)
+    }}>
+      <TabsList>
+        <TabsTrigger value="total" >Overall</TabsTrigger>
+        <TabsTrigger value="ms">Mainstream Media</TabsTrigger>
+        <TabsTrigger value="nms">Non-mainstream Media</TabsTrigger>
+      </TabsList>
+    </Tabs>
+    </div>
+      
       <Card>
         <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
           <div className="grid flex-1 gap-1 text-center sm:text-left">
@@ -289,7 +304,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
             config={chartConfig}
             className="aspect-auto h-[200px] w-full"
           >
-            <AreaChart data={filteredData}>
+            <AreaChart data={filteredData}> 
               <defs>
                 <linearGradient id="fillMs" x1="0" y1="0" x2="0" y2="1">
                   <stop
@@ -375,25 +390,6 @@ export function NumberOfArticlesAreaChart({chartData}) {
           <CardHeader className="flex flex-col">
             <div className="flex flex-row justify-between items-center">
             <CardTitle>Top-10 Types of Sources</CardTitle>
-            <Select value={topEntityTypeMediaType} onValueChange={setTopEntityTypeMediaType}>
-            <SelectTrigger
-              className="w-[200px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="total" className="rounded-lg">
-                Total
-              </SelectItem>
-              <SelectItem value="ms" className="rounded-lg">
-                Mainstream Media
-              </SelectItem>
-              <SelectItem value="nms" className="rounded-lg">
-                Non-mainstream Media
-              </SelectItem>
-            </SelectContent>
-            </Select>
             </div>
             <CardDescription>Showing the most mentioned types of sources</CardDescription>
           </CardHeader>
@@ -404,7 +400,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
                 data={topEntityType}
                 layout="vertical"
                 margin={{
-                  right: 16,
+                  right: 30,
                 }}
               >
                 <CartesianGrid horizontal={false} />
@@ -426,7 +422,7 @@ export function NumberOfArticlesAreaChart({chartData}) {
                 <Bar
                   dataKey="entity_count"
                   layout="vertical"
-                  fill="var(--color-entity_count)"
+                  fill={`hsl(var(--${color[topEntityTypeMediaType]}))`}
                   radius={4}
                 >
                   <LabelList
@@ -445,25 +441,6 @@ export function NumberOfArticlesAreaChart({chartData}) {
           <CardHeader className="flex flex-col">
             <div className="flex flex-row justify-between items-center">
             <CardTitle>The Number of Sources Types </CardTitle>
-            <Select value={activeChart} onValueChange={setActiveChart}>
-            <SelectTrigger
-              className="w-[200px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="total" className="rounded-lg">
-                Total
-              </SelectItem>
-              <SelectItem value="ms" className="rounded-lg">
-                Mainstream Media
-              </SelectItem>
-              <SelectItem value="nms" className="rounded-lg">
-                Non-mainstream Media
-              </SelectItem>
-            </SelectContent>
-            </Select>
             </div>
             <CardDescription>Examine how many articles used one source, two sources, three sources, and so on... </CardDescription>
           </CardHeader>
@@ -508,25 +485,6 @@ export function NumberOfArticlesAreaChart({chartData}) {
           <CardHeader className="flex flex-col">
             <div className="flex flex-row justify-between items-center">
             <CardTitle>Top-10 Themes</CardTitle>
-            <Select value={topThemeMediaType} onValueChange={setTopThemeMediaType}>
-            <SelectTrigger
-              className="w-[200px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="total" className="rounded-lg">
-                Total
-              </SelectItem>
-              <SelectItem value="ms" className="rounded-lg">
-                Mainstream Media
-              </SelectItem>
-              <SelectItem value="nms" className="rounded-lg">
-                Non-mainstream Media
-              </SelectItem>
-            </SelectContent>
-            </Select>
             </div>
             <CardDescription>Showing the most mentioned themes</CardDescription>
           </CardHeader>
@@ -576,25 +534,6 @@ export function NumberOfArticlesAreaChart({chartData}) {
           <CardHeader>
           <div className="flex flex-row justify-between items-center">
             <CardTitle>Top-10 People & Organization</CardTitle>
-            <Select value={topEntityMediaType} onValueChange={setTopEntityMediaType}>
-            <SelectTrigger
-              className="w-[200px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="total" className="rounded-lg">
-                Total
-              </SelectItem>
-              <SelectItem value="ms" className="rounded-lg">
-                Mainstream Media
-              </SelectItem>
-              <SelectItem value="nms" className="rounded-lg">
-                Non-mainstream Media
-              </SelectItem>
-            </SelectContent>
-            </Select>
             </div>
             <CardDescription>Showing the most mentioned people or organizations</CardDescription>
           </CardHeader>
